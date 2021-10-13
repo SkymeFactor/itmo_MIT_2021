@@ -1,0 +1,16 @@
+# Common
+.*
+!.gitignore
+
+# Directories
+.vscode
+.temp
+
+# File-types
+*.o
+*.d
+*.elf
+*.exe
+
+# Files
+.profile
