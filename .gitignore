@@ -1,10 +1,10 @@
 # Common
 .*
+!.gitkeep
 !.gitignore
 
 # Directories
-.vscode
-.temp
+temp
 
 # File-types
 *.o
@@ -12,5 +12,3 @@
 *.elf
 *.exe
 
-# Files
-.profile
