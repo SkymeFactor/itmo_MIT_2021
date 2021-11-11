@@ -1,16 +1,27 @@
+#include "ppmd.h"
 #include <iostream>
-#include "encoder.h"
 
-bool is_ok() {
-	return true;
-}
 
 int main(int argc, char* argv[]) {
-	std::cout << "Hello, cross-compilation!" << std::endl;
+	char* input_filename;
 	
-	#ifdef __WIN32
-	system("PAUSE");
-	#endif
+	if (argc > 1) {
+		input_filename = argv[1];
+	} else {
+		std::cerr << "No arguments provided\n";
+	}
+
+	std::string output_filename = input_filename;
+	output_filename.append(".ppmd");
+
+	FILE * fpIn = fopen(input_filename,"rb"), * fpOut = fopen(output_filename.c_str(),"wb");
+    if (!fpIn || !fpOut) {
+        std::cerr << "Unable to open file-stream\n";
+        exit(-1);
+    }
+    
+	ppmd::EncodeSequence(4, fpOut, fpIn);
+	fclose(fpIn); fclose(fpOut);
 	
 	return 0;
 }
