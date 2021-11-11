@@ -5,10 +5,12 @@
 ifeq ($(target),win32)
 CXX=x86_64-w64-mingw32-g++
 CXXFLAGS=-Wall -Werror -std=c++17 -static-libstdc++ -static-libgcc
+LD_FLAGS=
 BINARY_EXT=exe
 else
 CXX=g++
-CXXFLAGS=-Wall -Werror -std=c++17
+CXXFLAGS=-g -Wall -std=c++17 -pthread
+LD_FLAGS=
 BINARY_EXT=elf
 endif
 # Cleaner
@@ -22,7 +24,7 @@ BIN_DIR=build/
 # Files
 SOURCES=$(shell find $(SRC_DIR) -type f -name '*.cpp')
 OBJECTS=$(SOURCES:$(SRC_DIR)%.cpp=%.o)
-INCLUDE=$(addprefix -I$(SRC_DIR),$(addsuffix /include,$(BINARIES)))
+INCLUDE=-Iinclude/
 
 # Executables
 BINARIES=encoder decoder
@@ -43,7 +45,7 @@ $(OBJECTS): %.o: $(SRC_DIR)%.cpp
 $(BINARIES): $(OBJECTS)
 # We need to filter out unnecessarry object files
 # and add the $(OBJ_DIR) prefix to each filename
-	$(CXX) $(CXXFLAGS) $(addprefix $(OBJ_DIR),$(filter $@%,$(OBJECTS))) -o $(BIN_DIR)$@.$(BINARY_EXT)
+	$(CXX) $(CXXFLAGS) $(addprefix $(OBJ_DIR),$(filter $@%,$(OBJECTS))) obj/ppmd.o -o $(BIN_DIR)$@.$(BINARY_EXT) $(LD_FLAGS)
 
 clean:
 	$(RM) $(BIN_DIR)*
