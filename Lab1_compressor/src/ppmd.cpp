@@ -9,7 +9,7 @@ static Context * MinContext, * MaxContext, * PrevContext;
 static Context::STATS* pCStats;
 static unsigned char CharMask[256];
 static int NumMasked, NumContexts, MaxOrder;
-static int BSVal, BinSumm[128][8], Esc2Summ[256];
+static uint16_t BSVal, BinSumm[128][8], Esc2Summ[256];
 
 
 void StartModel() {
@@ -173,7 +173,7 @@ void Context::rescale() {
 
 bool Context::encodeBinSymbol(int symbol) {
     STATS* p = oneState();
-    int& bs = BinSumm[p->Freq - 1][(Lesser->NumStats < 8) ? (Lesser->NumStats) : (0)];
+    uint16_t& bs = BinSumm[p->Freq - 1][(Lesser->NumStats < 8) ? (Lesser->NumStats) : (0)];
 
     if (p->Symbol == symbol) {
         SubRange.LowCount = 0;
@@ -198,7 +198,7 @@ bool Context::encodeBinSymbol(int symbol) {
 int Context::decodeBinSymbol() {
     int count = ariGetCurrentShiftCount(INT_BITS + PERIOD_BITS);
     STATS* p = oneState();
-    int& bs=BinSumm[p->Freq-1][(Lesser->NumStats < 8) ? (Lesser->NumStats) : (0)];
+    uint16_t& bs=BinSumm[p->Freq-1][(Lesser->NumStats < 8) ? (Lesser->NumStats) : (0)];
 
     if (count < bs) {
         SubRange.LowCount = 0;
@@ -301,8 +301,8 @@ int Context::innerDecode1(int count) {
 
 bool Context::encodeSymbol2(int symbol) {
     int i = NumStats - NumMasked;
-    int* pes = Esc2Summ + (i & ~1) + (SummFreq < 4 * NumStats);
-    int EscFreq = (NumStats != 256) ? GET_MEAN(*pes, PERIOD_BITS, 1) : 0;
+    uint16_t* pes = Esc2Summ + (i & ~1) + (SummFreq < 4 * NumStats);
+    uint16_t EscFreq = (NumStats != 256) ? GET_MEAN(*pes, PERIOD_BITS, 1) : 0;
     
     SubRange.scale = EscFreq + (EscFreq == 0);
     *pes -= EscFreq;
@@ -337,8 +337,8 @@ bool Context::encodeSymbol2(int symbol) {
 
 int Context::decodeSymbol2() {
     int count, i = NumStats - NumMasked;
-    int* pes = Esc2Summ + (i & ~1) + (SummFreq < 4 * NumStats);
-    int EscFreq = (NumStats != 256) ? GET_MEAN(*pes, PERIOD_BITS, 1) : 0;
+    uint16_t* pes = Esc2Summ + (i & ~1) + (SummFreq < 4 * NumStats);
+    uint16_t EscFreq = (NumStats != 256) ? GET_MEAN(*pes, PERIOD_BITS, 1) : 0;
     
     SubRange.scale = EscFreq + (EscFreq == 0);
     *pes -= EscFreq;

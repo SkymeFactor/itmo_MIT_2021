@@ -4,12 +4,12 @@
 #include <sys/types.h>
 
 static struct SUBRANGE {
-    int LowCount, HighCount, scale;
+    uint32_t LowCount, HighCount, scale;
 } SubRange;
 
-const unsigned int CODE_VALUE_BITS = 32, TOP_VALUE = 1 << 31, BOTTOM_VALUE = TOP_VALUE >> 8;
+const uint32_t CODE_VALUE_BITS = 32, TOP_VALUE = 1 << 31, BOTTOM_VALUE = TOP_VALUE >> 8;
 const int SHIFT_BITS = CODE_VALUE_BITS-9, EXTRA_BITS = (CODE_VALUE_BITS - 2) % 8+1, CTRL_BYTE = 0x79;
-static unsigned int low, range, AriVar, StreamStart;
+static uint32_t low, range, AriVar, StreamStart;
 static unsigned char ByteBuffer;
 
 inline void ariInitEncoder(FILE* stream) {
@@ -37,8 +37,8 @@ inline void ariEncoderNormalize(FILE* stream) {
 }
 
 inline void ariEncodeSymbol() {
-    int r = range / SubRange.scale;
-    int tmp = r * SubRange.LowCount;
+    uint32_t r = range / SubRange.scale;
+    uint32_t tmp = r * SubRange.LowCount;
     if (SubRange.HighCount < SubRange.scale)
         range = r * (SubRange.HighCount - SubRange.LowCount);
     else
@@ -47,8 +47,8 @@ inline void ariEncodeSymbol() {
 }
 
 inline void ariShiftEncodeSymbol(int SHIFT) {
-    int r = range >> SHIFT;
-    int tmp = r * SubRange.LowCount;
+    uint32_t r = range >> SHIFT;
+    uint32_t tmp = r * SubRange.LowCount;
     if (SubRange.HighCount < (1 << SHIFT))
         range = r * (SubRange.HighCount - SubRange.LowCount);
     else
@@ -86,19 +86,19 @@ inline void ariDecoderNormalize(FILE* stream) {
 
 inline int ariGetCurrentCount() {
     AriVar = range / SubRange.scale;
-    int tmp = low / AriVar;
+    uint32_t tmp = low / AriVar;
     return (tmp >= SubRange.scale) ? (SubRange.scale - 1) : tmp;
 }
 
 inline int ariGetCurrentShiftCount(int SHIFT) {
     SubRange.scale = 1 << SHIFT;
     AriVar = range >> SHIFT;
-    int tmp = low / AriVar;
+    uint32_t tmp = low / AriVar;
     return (tmp >= (1 << SHIFT)) ? ((1 << SHIFT) - 1) : tmp;
 }
 
 inline void ariRemoveSubrange() {
-    int tmp = AriVar * SubRange.LowCount;
+    uint32_t tmp = AriVar * SubRange.LowCount;
     low -= tmp;
     if (SubRange.HighCount < SubRange.scale)
         range = AriVar * (SubRange.HighCount - SubRange.LowCount);
