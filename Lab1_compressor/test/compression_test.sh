@@ -6,8 +6,12 @@ cd ..
 
 # Set passed tests counter
 passed=0
-encoder=./build/encoder.exe
-decoder=./build/decoder.exe
+extension=exe
+if [[ $extension == "exe" ]]; then
+    execution_layer=wine
+fi
+encoder=./build/encoder.${extension}
+decoder=./build/decoder.${extension}
 
 echo "Test: encoder and decoder available"
 if [ -e ${encoder} ] && [ -e ${decoder} ]; then
@@ -25,7 +29,7 @@ for file in $(ls test/calgarycorpus); do;
     cp ./test/calgarycorpus/${file} ./test/${file}
 
     # Run encoder
-    wine ${encoder} ./test/${file} &>/dev/null
+    ${execution_layer} ${encoder} ./test/${file} &>/dev/null
 
     # Check encoded file has appropriate size
     echo "Test: encoded file has normal size"
@@ -40,7 +44,7 @@ for file in $(ls test/calgarycorpus); do;
     mv ./test/${file} ./test/${file}_original
 
     # Run decoder
-    wine ${decoder} ./test/${file}.ppmd
+    ${execution_layer} ${decoder} ./test/${file}.ppmd
 
     # Compare results
     echo "Test: decoder gives identical file as origin"
