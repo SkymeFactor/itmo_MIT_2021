@@ -1,3 +1,13 @@
+/**
+ * @file arithmetic_coder.h
+ * @authors SkymeFactor (sergei.51351@gmail.com)
+ * @brief range coder implementation file
+ * 
+ * @version 1.01
+ * @date 2021-11-17
+ * 
+ * @copyright MIT 2021
+ */
 #pragma once
 #include <stdlib.h>
 #include <stdio.h>
@@ -37,8 +47,8 @@ inline void ariEncoderNormalize(FILE* stream) {
 }
 
 inline void ariEncodeSymbol() {
-    int r = range / SubRange.scale;
-    int tmp = r * SubRange.LowCount;
+    uint32_t r = range / SubRange.scale;
+    uint32_t tmp = r * SubRange.LowCount;
     if (SubRange.HighCount < SubRange.scale)
         range = r * (SubRange.HighCount - SubRange.LowCount);
     else
@@ -47,8 +57,8 @@ inline void ariEncodeSymbol() {
 }
 
 inline void ariShiftEncodeSymbol(int SHIFT) {
-    int r = range >> SHIFT;
-    int tmp = r * SubRange.LowCount;
+    uint32_t r = range >> SHIFT;
+    uint32_t tmp = r * SubRange.LowCount;
     if (SubRange.HighCount < (1 << SHIFT))
         range = r * (SubRange.HighCount - SubRange.LowCount);
     else
@@ -98,7 +108,7 @@ inline int ariGetCurrentShiftCount(int SHIFT) {
 }
 
 inline void ariRemoveSubrange() {
-    int tmp = AriVar * SubRange.LowCount;
+    uint32_t tmp = AriVar * SubRange.LowCount;
     low -= tmp;
     if (SubRange.HighCount < SubRange.scale)
         range = AriVar * (SubRange.HighCount - SubRange.LowCount);

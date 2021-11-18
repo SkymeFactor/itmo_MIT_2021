@@ -1,3 +1,13 @@
+/**
+ * @file ppmd.cpp
+ * @authors SkymeFactor (sergei.51351@gmail.com)
+ * @brief implementation of ppmd namespace functions and classes
+ * 
+ * @version 1.01
+ * @date 2021-11-17
+ * 
+ * @copyright MIT 2021
+ */
 #include <iostream>
 #include "ppmd.h"
 
@@ -9,7 +19,7 @@ static Context * MinContext, * MaxContext, * PrevContext;
 static Context::STATS* pCStats;
 static unsigned char CharMask[256];
 static int NumMasked, NumContexts, MaxOrder;
-static int BSVal, BinSumm[128][8], Esc2Summ[256];
+static uint16_t BSVal, BinSumm[128][8], Esc2Summ[256];
 
 
 void StartModel() {
@@ -107,11 +117,13 @@ void UpdateModel(int symbol) {
     if ( pCStats->Successor )
         MinContext = pc = pCStats->Successor;
     else
-        pc = new Context(pCStats,pc);
+        if ((pc = new Context(pCStats,pc)) == nullptr)
+            StartModel();
     
-    while (--pps != ps)
-        pc = new Context(*pps,pc);
-    
+    while (--pps != ps) {
+        if ((pc = new Context(*pps,pc)) == nullptr)
+            StartModel();
+    }
     MaxContext = (*pps)->Successor = pc;
     return;
 }
@@ -173,7 +185,7 @@ void Context::rescale() {
 
 bool Context::encodeBinSymbol(int symbol) {
     STATS* p = oneState();
-    int& bs = BinSumm[p->Freq - 1][(Lesser->NumStats < 8) ? (Lesser->NumStats) : (0)];
+    uint16_t& bs = BinSumm[p->Freq - 1][(Lesser->NumStats < 8) ? (Lesser->NumStats) : (0)];
 
     if (p->Symbol == symbol) {
         SubRange.LowCount = 0;
@@ -198,7 +210,7 @@ bool Context::encodeBinSymbol(int symbol) {
 int Context::decodeBinSymbol() {
     int count = ariGetCurrentShiftCount(INT_BITS + PERIOD_BITS);
     STATS* p = oneState();
-    int& bs=BinSumm[p->Freq-1][(Lesser->NumStats < 8) ? (Lesser->NumStats) : (0)];
+    uint16_t& bs=BinSumm[p->Freq-1][(Lesser->NumStats < 8) ? (Lesser->NumStats) : (0)];
 
     if (count < bs) {
         SubRange.LowCount = 0;
@@ -301,12 +313,12 @@ int Context::innerDecode1(int count) {
 
 bool Context::encodeSymbol2(int symbol) {
     int i = NumStats - NumMasked;
-    int* pes = Esc2Summ + (i & ~1) + (SummFreq < 4 * NumStats);
-    int EscFreq = (NumStats != 256) ? GET_MEAN(*pes, PERIOD_BITS, 1) : 0;
+    uint16_t* pes = Esc2Summ + (i & ~1) + (SummFreq < 4 * NumStats);
+    uint16_t EscFreq = (NumStats != 256) ? GET_MEAN(*pes, PERIOD_BITS, 1) : 0;
     
     SubRange.scale = EscFreq + (EscFreq == 0);
     *pes -= EscFreq;
-    STATS* p = Stats - 1;   // Only relevant for multiple contexts on the same level
+    STATS* p = Stats - 1;   // Relevant for multiple contexts on the same level
     SubRange.LowCount = 0;
 
     do {
@@ -337,19 +349,19 @@ bool Context::encodeSymbol2(int symbol) {
 
 int Context::decodeSymbol2() {
     int count, i = NumStats - NumMasked;
-    int* pes = Esc2Summ + (i & ~1) + (SummFreq < 4 * NumStats);
-    int EscFreq = (NumStats != 256) ? GET_MEAN(*pes, PERIOD_BITS, 1) : 0;
+    uint16_t* pes = Esc2Summ + (i & ~1) + (SummFreq < 4 * NumStats);
+    uint16_t EscFreq = (NumStats != 256) ? GET_MEAN(*pes, PERIOD_BITS, 1) : 0;
     
     SubRange.scale = EscFreq + (EscFreq == 0);
     *pes -= EscFreq;
 
-    STATS* p = Stats - 1;   // Only relevant for multiple contexts on the same level
+    STATS* p = Stats - 1;   // Relevant for multiple contexts on the same level
     do {
         do { p++; } while ( CharMask[p->Symbol] );
         SubRange.scale += p->Freq;
     } while ( --i );
 
-    count=ariGetCurrentCount();
+    count = ariGetCurrentCount();
     SubRange.HighCount = 0;
     p = Stats-1;
     i = NumStats-NumMasked;
@@ -364,7 +376,7 @@ int Context::decodeSymbol2() {
         }
     } while ( --i );
 
-    for (CharMask[p->Symbol]=1;p != Stats;CharMask[(--p)->Symbol]=1);
+    for (CharMask[p->Symbol] = 1;p != Stats;CharMask[(--p)->Symbol] = 1);
 
     SubRange.LowCount = SubRange.HighCount;
     SubRange.HighCount = SubRange.scale;

@@ -1,3 +1,13 @@
+/**
+ * @file ppmd.h
+ * @authors SkymeFactor (sergei.51351@gmail.com)
+ * @brief declaration of ppmd namespace functions and classes
+ * 
+ * @version 1.01
+ * @date 2021-11-17
+ * 
+ * @copyright MIT 2021
+ */
 #pragma once
 #include <vector>
 #include <iostream>
@@ -13,7 +23,9 @@ const int MAX_FREQ=62, ALFA=16, ESCAPE=256;
 const int INT_BITS=7, INTERVAL=1 << INT_BITS, PERIOD_BITS=7;
 const int MAX_ORDER = 8;
 
-
+// Extremely important to align Context in memory
+// Otherwise pointers logic will break
+// Possibly have to fix
 #pragma pack(1)
 class Context {
 public:
@@ -36,6 +48,8 @@ public:
     int innerDecode1(int  count);           //    CD    lesser
     int decodeSymbol2();                    //   BCDE   successor
     void rescale();
+
+    // retutns pointer to current context stats (won't work without memory aligning)
     STATS* oneState() const { return  (STATS*) (((unsigned char*)this)+sizeof(uint16_t)); }
 
 #define UPDATE1(p) {                                                            \
@@ -68,10 +82,11 @@ public:
     }
 
 };
+#pragma pack()
 
 
-void EncodeSequence(int order, FILE * EncodedFile,FILE * DecodedFile);
-void DecodeSequence(int order, FILE * EncodedFile,FILE * DecodedFile);
+void EncodeSequence(int order, FILE* EncodedFile, FILE* DecodedFile);
+void DecodeSequence(int order, FILE* EncodedFile, FILE* DecodedFile);
 
 
 } // end of namespace ppmd;
