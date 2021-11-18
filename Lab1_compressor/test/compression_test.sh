@@ -6,6 +6,7 @@ cd ..
 
 # Set passed tests counter
 passed=0
+sum_compressed_size=0
 extension=exe
 if [[ $extension == "exe" ]]; then
     execution_layer=wine
@@ -58,10 +59,16 @@ for file in $(ls test/calgarycorpus); do;
 
     # Show additional information
     echo && echo "Passed $passed/29 tests"
-    cr=$(( 8.0 * $(wc -c <./test/${file}.ppmd) / $(wc -c <./test/${file}) ))
+    
+    original_size=$(wc -c <./test/${file})
+    compressed_size=$(wc -c <./test/${file}.ppmd)
+    ((sum_compressed_size+=${compressed_size}))
+    cr=$(( 8.0 * ${compressed_size} / ${original_size} ))
 
     echo "Code ratio = $cr" && echo
     
     # Clear the remainings
     rm test/${file} test/${file}.ppmd test/${file}_original
 done
+
+echo "Total compressed size= $sum_compressed_size"
