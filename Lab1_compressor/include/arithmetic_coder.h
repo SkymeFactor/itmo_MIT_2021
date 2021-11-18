@@ -1,7 +1,7 @@
 /**
  * @file arithmetic_coder.h
  * @authors SkymeFactor (sergei.51351@gmail.com)
- * @brief range coder implementation file
+ * @brief arithmetic coder implementation file
  * 
  * @version 1.01
  * @date 2021-11-17
