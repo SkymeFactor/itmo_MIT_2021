@@ -4,7 +4,7 @@ This repository is intended to keep my practical results on MIT discipline, whic
 
 | Project                    | Status         | Deadline | Topic |
 |----------------------------|----------------|:--------:|:-----:|
-|  [Lab1](Lab1_compressor/)  | in development |  11 Nov  | :PPMd:|
+|  [Lab1](Lab1_compressor/)  | in development |  11 Nov  |  PPMd |
 |  Lab 2                     | to be announced|   :x:    |  :x:  |
 
 
