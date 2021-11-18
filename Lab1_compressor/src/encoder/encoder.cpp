@@ -9,6 +9,7 @@ int main(int argc, char* argv[]) {
 		input_filename = argv[1];
 	} else {
 		std::cerr << "No arguments provided\n";
+		exit(-1);
 	}
 
 	std::string output_filename = input_filename;
