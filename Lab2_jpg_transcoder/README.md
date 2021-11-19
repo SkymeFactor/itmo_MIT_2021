@@ -1,7 +1,7 @@
 # JPEG Transcoder
 ---
 ### Business process structure:
-![Business process](img/business_process.png | width=640 )
+![Business process](img/business_process.png =640x )
 ### Test JPG images
 
 | Image      | Size    | JPEG QF=80 | JPEG QF=30 | QF=80 arch| QF=30 arch |
